@@ -1,0 +1,102 @@
+﻿
+@{
+    Layout = null;
+    ViewBag.Title = "Index";
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>ShowGrid</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/jq-3.3.1/dt-1.10.24/b-1.7.0/b-colvis-1.7.0/b-html5-1.7.0/rg-1.1.2/cr-1.5.3/date-1.0.3/r-2.2.7/sl-1.3.3/datatables.min.css" />
+    <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.24/b-1.7.0/b-colvis-1.7.0/b-html5-1.7.0/rg-1.1.2/cr-1.5.3/date-1.0.3/kt-2.6.1/r-2.2.7/sl-1.3.3/datatables.min.js"></script>
+    
+</head>
+<body>
+    <h2>Employee</h2>
+    <div class="container">
+    <div style="width:90%; margin:0 auto;">
+    <table id="demoGrid" class="table table-striped table-bordered dt-responsive nowrap" width="100%" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Employee ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Salary</th>
+                <th>Designation</th>
+                <th>Edit</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+    </table>
+</div></div>
+    
+    <script>
+        $(document).ready(function () {
+            
+            bindDataTable();
+
+        });
+        function bindDataTable() {
+            $("#demoGrid").DataTable({
+                dom: "rtip",
+                order: [[1, 'asc']],
+                ajax: {
+                    url: "/Employee/EmployeeGetList",
+                    type: "GET"
+                },
+                pageLength: 50,
+                stateSave: true,
+                columns: [
+                    { data: "ID", title: "EmployeeID", "autoWidth": true },
+                    { data: "Name", title: "Name", "autoWidth": true },
+                    { data: "Email", title: "Email", "autoWidth": true },
+                    { data: "Salary", title: "Salary", "autoWidth": true },
+                    { data: "Desgination", title: "Designation", "autoWidth": true },
+                    {
+                        render: function (data, type, full, meta) { return '<a class="btn btn-info" href="/Employee/Edit/' + full.ID + '">Edit</a>'; }
+                    },
+                    {
+                        data: null, render: function (data, type, row) {
+                            return "<a href='#' class='btn btn-danger' onclick=DeleteData('" + row.ID + "'); >Delete</a>";
+                        }
+                    },
+
+                ],
+                select: {
+                    style: 'os',
+                    selector: 'td:first-child'
+                }
+
+            });
+        }
+
+        function fnDeleteItem(id) {
+            swal({
+                title: "events",
+                text: "Are you sure you wish to delete this item?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then((willDelete) => {
+                if (willDelete) {
+                    $.post('/Employee/EmployeeDelete', { id: id }, function (data) {
+                        if (data.success) {
+                            swal("Employee", "Employee deleted successfully", "success");
+                            tblBatch.ajax.reload();
+                        }
+                        else
+                            swal("Employee", data.message, "error");
+                    });
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>
+
+
+
